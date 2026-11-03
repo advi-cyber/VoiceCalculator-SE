@@ -188,3 +188,4 @@ if __name__ == "__main__":
     print(f"2^8           = {power(2, 8)}")
     print(f"sin(30 deg)   = {sine(30)}")
     print("=" * 60)
+

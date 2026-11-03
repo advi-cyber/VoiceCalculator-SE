@@ -339,3 +339,4 @@ Capture these screenshots for your Software Engineering and DevOps practicum rep
 ## License
 
 This project is open-source under the [MIT License](LICENSE).
+

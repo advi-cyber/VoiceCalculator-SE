@@ -62,3 +62,4 @@ jobs:
           name: voice-calculator-release
           path: voice-calculator-build.zip
           retention-days: 14
+
