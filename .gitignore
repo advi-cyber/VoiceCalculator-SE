@@ -1,0 +1,37 @@
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Pytest and Test Artifacts
+.pytest_cache/
+test-results.xml
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Distribution and Packaging
+build/
+dist/
+*.egg-info/
+*.zip
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini

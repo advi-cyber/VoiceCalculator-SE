@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Voice-Controlled Calculator with Web Speech API and GitHub Actions DevOps CI Pipeline">
+  <title>VoiceCalc Pro | Smart Voice Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts for sleek typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Background ambient glow lights -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <div class="app-layout">
+    <!-- Main Calculator Container -->
+    <main class="calculator-card" role="region" aria-label="Voice Calculator">
+      <!-- Top Navigation & Controls -->
+      <header class="calc-header">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>VoiceCalc <span>Pro</span></h1>
+            <span class="badge">DevOps CI/CD</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Voice Output (TTS) Toggle -->
+          <button id="tts-toggle" class="icon-btn" title="Toggle Voice Feedback (Speaking Result)" aria-label="Toggle Voice Feedback">
+            <svg id="tts-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+            <svg id="tts-off-icon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="1" y1="1" x2="23" y2="23"/>
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          </button>
+
+          <!-- History Toggle -->
+          <button id="history-toggle" class="icon-btn" title="Calculation History" aria-label="Open History">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </button>
+
+          <!-- Help / Viva Modal Toggle -->
+          <button id="help-toggle" class="icon-btn" title="Voice Commands & Info" aria-label="Help and Info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </button>
+
+          <!-- Dark / Light Theme Toggle -->
+          <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+            <svg id="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg id="moon-icon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Display Unit -->
+      <section class="display-section">
+        <!-- Voice Status Banner -->
+        <div id="voice-status-bar" class="voice-status-bar">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span id="voice-status-text" class="status-text">Click mic or press Space to speak</span>
+          </div>
+          <!-- Animated Sound Wave Visualizer (active when listening) -->
+          <div id="audio-wave" class="audio-wave hidden">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </div>
+        </div>
+
+        <div class="display-screen">
+          <div id="expression-display" class="expression-display" aria-label="Current Expression"></div>
+          <div id="result-display" class="result-display" aria-label="Result or Input">0</div>
+        </div>
+      </section>
+
+      <!-- Voice Interaction Bar -->
+      <section class="voice-control-bar">
+        <button id="mic-btn" class="mic-btn" title="Click to speak (e.g. 'What is 25 plus 40?')" aria-label="Microphone Voice Input">
+          <div class="mic-pulse"></div>
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+          <span class="mic-label">Speak Calculation</span>
+        </button>
+
+        <!-- Quick Speech Suggestion Pills -->
+        <div class="speech-hints-carousel">
+          <span class="hint-title">Try saying:</span>
+          <div class="hints-scroll">
+            <button class="hint-pill" data-phrase="What is 25 plus 40">"25 + 40"</button>
+            <button class="hint-pill" data-phrase="Multiply 12 by 8">"12 × 8"</button>
+            <button class="hint-pill" data-phrase="Divide 100 by 4">"100 ÷ 4"</button>
+            <button class="hint-pill" data-phrase="What is 15 percent of 200">"15% of 200"</button>
+            <button class="hint-pill" data-phrase="Square root of 144">"√144"</button>
+            <button class="hint-pill" data-phrase="2 to the power of 8">"2⁸"</button>
+            <button class="hint-pill" data-phrase="Sine of 30">"sin(30°)"</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scientific Functions Toggle Bar -->
+      <section class="scientific-bar">
+        <button class="key scientific" data-action="sin">sin</button>
+        <button class="key scientific" data-action="cos">cos</button>
+        <button class="key scientific" data-action="tan">tan</button>
+        <button class="key scientific" data-action="sqrt">√</button>
+        <button class="key scientific" data-action="square">x²</button>
+        <button class="key scientific" data-action="power">xʸ</button>
+        <button class="key scientific" data-action="percent">%</button>
+        <button class="key scientific" data-action="pi">π</button>
+      </section>
+
+      <!-- Main Calculator Keypad -->
+      <section class="keypad-grid">
+        <button class="key action clear" data-action="clear">AC</button>
+        <button class="key action delete" data-action="backspace">DEL</button>
+        <button class="key action" data-action="parens">( )</button>
+        <button class="key operator" data-operator="/">÷</button>
+
+        <button class="key number" data-number="7">7</button>
+        <button class="key number" data-number="8">8</button>
+        <button class="key number" data-number="9">9</button>
+        <button class="key operator" data-operator="*">×</button>
+
+        <button class="key number" data-number="4">4</button>
+        <button class="key number" data-number="5">5</button>
+        <button class="key number" data-number="6">6</button>
+        <button class="key operator" data-operator="-">−</button>
+
+        <button class="key number" data-number="1">1</button>
+        <button class="key number" data-number="2">2</button>
+        <button class="key number" data-number="3">3</button>
+        <button class="key operator" data-operator="+">+</button>
+
+        <button class="key action" data-action="negate">±</button>
+        <button class="key number" data-number="0">0</button>
+        <button class="key number" data-action="decimal">.</button>
+        <button class="key equals" data-action="calculate">=</button>
+      </section>
+
+      <!-- Bottom Info Bar -->
+      <footer class="calc-footer">
+        <span>Web Speech API • SpeechSynthesis • pytest CI/CD</span>
+      </footer>
+    </main>
+
+    <!-- Slide-in History Panel -->
+    <aside id="history-panel" class="history-panel" aria-label="Calculation History">
+      <div class="history-header">
+        <div class="history-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <h3>History</h3>
+        </div>
+        <div class="history-header-actions">
+          <button id="clear-history-btn" class="text-btn danger" title="Clear All History">Clear</button>
+          <button id="close-history-btn" class="icon-btn small" title="Close History">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="history-list" class="history-list">
+        <!-- Rendered dynamically -->
+        <div class="empty-history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p>No calculations yet.<br>Speak or calculate to record history.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Help & Viva Reference Modal -->
+  <div id="help-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Voice Calculator Guide & Architecture</h3>
+        <button id="close-modal-btn" class="icon-btn small" aria-label="Close Modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <h4>🎙️ Voice Commands Guide</h4>
+        <p>Click the microphone button (or press <strong>Spacebar</strong>) and speak naturally into your microphone:</p>
+        <ul class="guide-list">
+          <li><strong>Addition:</strong> "What is 25 plus 40?", "Add 15 and 35"</li>
+          <li><strong>Subtraction:</strong> "100 minus 35", "Subtract 15 from 50"</li>
+          <li><strong>Multiplication:</strong> "Multiply 12 by 8", "12 times 8"</li>
+          <li><strong>Division:</strong> "Divide 100 by 4", "100 divided by 4"</li>
+          <li><strong>Percentage:</strong> "What is 15 percent of 200?", "20 percent of 80"</li>
+          <li><strong>Square Root:</strong> "Square root of 144", "What is root 64"</li>
+          <li><strong>Power:</strong> "2 to the power of 8", "5 squared", "3 cubed"</li>
+          <li><strong>Trigonometry:</strong> "Sine of 30", "Cosine of 60", "Tangent of 45"</li>
+          <li><strong>Voice Controls:</strong> "Clear", "Reset", "Delete", "Equals", "Calculate"</li>
+        </ul>
+
+        <h4>⌨️ Keyboard Shortcuts</h4>
+        <ul class="guide-list">
+          <li><strong>0-9, +, -, *, /:</strong> Standard input</li>
+          <li><strong>Enter or =:</strong> Calculate result</li>
+          <li><strong>Backspace:</strong> Delete last digit</li>
+          <li><strong>Escape:</strong> Clear all (AC)</li>
+          <li><strong>Spacebar:</strong> Toggle microphone listening</li>
+        </ul>
+
+        <h4>⚙️ DevOps Architecture (Practicum Viva Info)</h4>
+        <ul class="guide-list">
+          <li><strong>Continuous Integration:</strong> Automated GitHub Actions workflow on <code>push</code>, <code>pull_request</code>, and <code>workflow_dispatch</code>.</li>
+          <li><strong>Automated Testing:</strong> 33+ comprehensive pytest test cases validating mathematical precision, edge cases, and exception handling without unsafe <code>eval()</code>.</li>
+          <li><strong>Quality Gates:</strong> Python syntax check via <code>py_compile</code>.</li>
+          <li><strong>Build & Packaging:</strong> Automated distribution directory creation and ZIP artifact upload.</li>
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button id="modal-ok-btn" class="primary-btn">Got it, Let's Calculate!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
